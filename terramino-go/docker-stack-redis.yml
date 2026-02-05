@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    command: redis-server --appendonly yes --dir /data
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+    volumes:
+      - type: volume
+        source: redis_nfs_volume
+        target: /data
+    networks:
+      - terramino_net
+
+  backend:
+    image: terramino-go-backend:latest
+    deploy:
+      replicas: 2
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - TERRAMINO_PORT=8080
+    networks:
+      - terramino_net
+
+  frontend:
+    image: terramino-go-frontend:latest
+    deploy:
+      replicas: 5
+    ports:
+      - "8081:8081"
+    networks:
+      - terramino_net
+
+volumes:
+  redis_nfs_volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=172.16.3.192,nfsvers=4,rw,nolock,soft"
+      device: ":/"
+
+networks:
+  terramino_net:
+    driver: overlay

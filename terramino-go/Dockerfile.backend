@@ -1,4 +1,4 @@
-FROM golang:1.22
+FROM golang:1.22 AS builder
 
 WORKDIR /app
 
@@ -7,12 +7,17 @@ RUN go mod download
 
 COPY . .
 
-# Build both the server and CLI client
 RUN go build -o terramino
 RUN go build -o terramino-cli cmd/cli/main.go
 
+FROM ubuntu:latest AS runner
+
+WORKDIR /app
+
+COPY --from=builder /app/terramino .
+COPY --from=builder /app/terramino-cli .
+
 EXPOSE 8080
 
-# Use environment variable to determine which binary to run
 ENV RUN_MODE=server
-CMD if [ "$RUN_MODE" = "cli" ]; then ./terramino-cli; else ./terramino; fi 
+CMD if [ "$RUN_MODE" = "cli" ]; then ./terramino-cli; else ./terramino; fi
