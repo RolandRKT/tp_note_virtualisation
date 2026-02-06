@@ -210,7 +210,7 @@ Les précautions pour garantir la cohérence des données sont les mêmes que ce
 
 ### Question 8 : Assurer les contraintes de la question précédente via le fichier docker-stack.yml
 
-Voir le fichier correspondant. Situé dans ```./terramino-go/docker-stack.yml```.
+Voir le fichier correspondant. Situé dans ```./docker-stack.yml```.
 
 ### Question 9 : Test de résilience
 
